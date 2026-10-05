@@ -47,25 +47,39 @@ def calculate_metrics(y_true, y_pred):
     }
 
 
+def _get_confusion_labels(y_true, y_pred):
+    """Use the canonical cognitive-state ordering across all confusion matrices."""
+
+    preferred_labels = ["rest", "easy", "medium", "diff"]
+    observed = {str(value) for value in set(y_true) | set(y_pred)}
+    labels = [label for label in preferred_labels if label in observed]
+    if not labels:
+        labels = sorted(observed)
+    return labels
+
+
 def create_confusion_matrix(
     y_true,
     y_pred,
     title="Confusion Matrix",
-    output_path="results/figures/confusion_matrix.png"
+    output_path="results/figures/confusion_matrix.png",
+    labels=None,
+    normalize=False,
 ):
     """
-    Create and save a confusion matrix.
+    Create and save a confusion matrix using the held-out test-set predictions.
     """
 
     import os
     import matplotlib.pyplot as plt
     import seaborn as sns
+    import numpy as np
 
     from sklearn.metrics import confusion_matrix
 
-    labels = sorted(
-        set(y_true) | set(y_pred)
-    )
+    y_true = [str(value) for value in y_true]
+    y_pred = [str(value) for value in y_pred]
+    labels = labels if labels is not None else _get_confusion_labels(y_true, y_pred)
 
     matrix = confusion_matrix(
         y_true,
@@ -73,46 +87,44 @@ def create_confusion_matrix(
         labels=labels
     )
 
+    if normalize:
+        row_sums = matrix.sum(axis=1, keepdims=True)
+        row_sums[row_sums == 0] = 1
+        matrix = matrix.astype(float) / row_sums
+        fmt = ".2f"
+        value_label = "Row-normalized fraction"
+        cmap = "Blues"
+    else:
+        fmt = "d"
+        value_label = "Count"
+        cmap = "Blues"
+
     output_directory = os.path.dirname(output_path)
     if output_directory:
         os.makedirs(output_directory, exist_ok=True)
 
-    plt.figure(
-        figsize=(7, 6)
-    )
+    plt.figure(figsize=(7, 6))
 
     sns.heatmap(
         matrix,
         annot=True,
-        fmt="d",
+        fmt=fmt,
         xticklabels=labels,
-        yticklabels=labels
+        yticklabels=labels,
+        cmap=cmap,
+        cbar_kws={"label": value_label},
+        vmin=0,
     )
 
-    plt.xlabel(
-        "Predicted Cognitive State"
-    )
-
-    plt.ylabel(
-        "Actual Cognitive State"
-    )
-
-    plt.title(
-        title
-    )
-
+    plt.xlabel("Predicted Cognitive State")
+    plt.ylabel("Actual Cognitive State")
+    plt.title(title)
     plt.tight_layout()
 
-    plt.savefig(
-        output_path,
-        dpi=300
-    )
-
+    plt.savefig(output_path, dpi=300)
     plt.close()
 
-    print(
-        f"Confusion matrix saved to: {output_path}"
-    )
+    print(f"Confusion matrix saved to: {output_path}")
 
 
 def compare_models(

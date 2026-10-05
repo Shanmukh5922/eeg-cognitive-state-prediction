@@ -1,0 +1,13 @@
+{
+  "project_root": "C:\\Users\\Shanmukha\\Desktop\\eeg-cognitive-state-prediction",
+  "generated_files": [
+    "C:\\Users\\Shanmukha\\Desktop\\eeg-cognitive-state-prediction\\data\\processed\\model_features.csv",
+    "C:\\Users\\Shanmukha\\Desktop\\eeg-cognitive-state-prediction\\models\\general_model.pkl",
+    "C:\\Users\\Shanmukha\\Desktop\\eeg-cognitive-state-prediction\\models\\personalized_model.pkl",
+    "C:\\Users\\Shanmukha\\Desktop\\eeg-cognitive-state-prediction\\results\\reports\\model_comparison.csv",
+    "C:\\Users\\Shanmukha\\Desktop\\eeg-cognitive-state-prediction\\notebooks\\03_modeling\\executed_modeling_evaluation.ipynb"
+  ],
+  "status": "completed",
+  "tests_passed": true,
+  "notes": "Project execution validated with pytest and the modeling notebook."
+}
